@@ -18,7 +18,7 @@ public class CatalogoRepositoryPgImpl implements CatalogoRepositoryPort {
             StringBuilder sql = new StringBuilder();
             sql.append("SELECT id, clase,");
             sql.append(" codigo, nombre");
-            sql.append(" FROM producto");
+            sql.append(" FROM inventario.producto");
             sql.append(" WHERE id = ?");
 
             Connection conn = DB.getConnection();
@@ -43,7 +43,7 @@ public class CatalogoRepositoryPgImpl implements CatalogoRepositoryPort {
     public boolean store(Producto producto) {
         try {            
             StringBuilder sql = new StringBuilder();
-            sql.append("INSERT INTO producto (id, clase, codigo, nombre)");
+            sql.append("INSERT INTO inventario.producto (id, clase, codigo, nombre)");
             sql.append(" VALUES (?, ?, ?, ?)");
             sql.append(" ON CONFLICT (id) DO UPDATE");
             sql.append(" SET clase = EXCLUDED.clase,");
@@ -69,7 +69,7 @@ public class CatalogoRepositoryPgImpl implements CatalogoRepositoryPort {
     public boolean delete(int id) {
         try {
             Connection conn = DB.getConnection(); 
-            PreparedStatement stmt = conn.prepareStatement("DELETE FROM producto WHERE id = ?");
+            PreparedStatement stmt = conn.prepareStatement("DELETE FROM inventario.producto WHERE id = ?");
             stmt.setInt(1, id);
             int rowsAffected = stmt.executeUpdate();
             return rowsAffected > 0;
@@ -86,7 +86,7 @@ public class CatalogoRepositoryPgImpl implements CatalogoRepositoryPort {
         try {
             StringBuilder sql = new StringBuilder();
             sql.append("SELECT id, clase, codigo, nombre");
-            sql.append(" FROM producto");
+            sql.append(" FROM inventario.producto");
             sql.append(" WHERE codigo||' '||nombre||' '|| clase LIKE ?");
 
             Connection conn = DB.getConnection();

@@ -41,5 +41,9 @@ public class Producto {
     public void setNombre(String valor) {
         this.nombre = valor;
     };
-    
+
+    @Override
+    public String toString() {
+        return "Producto [id=" + id + ", clase=" + clase + ", codigo=" + codigo + ", nombre=" + nombre + "]";
+    }
 }

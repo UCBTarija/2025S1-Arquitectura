@@ -10,7 +10,7 @@ public class Catalogo {
         this.repository = repository;
     }
 
-    public boolean adicionarProducto(
+    public int adicionarProducto(
             String codigo,
             String nombre,
             String clase) {
@@ -24,7 +24,8 @@ public class Catalogo {
                 codigo,
                 nombre);
 
-        return this.repository.store(producto);
+        this.repository.store(producto);
+        return id;
     }
 
     public Producto getProducto(int id) {
