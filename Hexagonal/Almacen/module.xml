@@ -1,0 +1,11 @@
+<module xmlns="urn:jboss:module:1.0" name="com.sun.net.httpserver">
+    <dependencies>
+        <module name="system" export="false">
+            <exports>
+                <include-set>
+                    <path name="com/sun/net/httpserver"/>
+                </include-set>
+            </exports>
+        </module>
+    </dependencies>
+</module>

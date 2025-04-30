@@ -1,45 +1,50 @@
-import java.util.List;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.util.Collections;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import catalogo.application.InsertarProductoUseCase;
-import catalogo.domain.Producto;
-import catalogo.infrastructure.CatalogoRepositoryPgImpl;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
 
 public class App {
     public static void main(String[] args) throws Exception {
-        System.out.println("Hello, World!");
+        HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
+        server.setExecutor(java.util.concurrent.Executors.newFixedThreadPool(1));
+        server.createContext("/add-producto", new AddProductoHandler());
+        // Start the server
+        System.out.println("Server started on http://localhost:8080. Press Ctrl+C to stop.");
+        server.start();
+    }
 
-        CatalogoRepositoryPgImpl catalogoRepository = new CatalogoRepositoryPgImpl();
-        InsertarProductoUseCase insertarProductoUseCase = 
-        new InsertarProductoUseCase(catalogoRepository);
+    static class AddProductoHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange t) throws IOException {
+            Map<String, String> params = getRequestParams(t);
+            System.out.println("Params: " + params);
 
-        int id = insertarProductoUseCase.execute("Clase 1", "Codigo 1", "Nombre 1");
-        System.out.println("Producto insertado con id: " + id);
+            String response = "{\"message\": \"Hello, World!\"}";
 
-        // CatalogoRepositoryPgImpl catalogoRepository = new CatalogoRepositoryPgImpl();
+            t.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+            t.sendResponseHeaders(200, response.length());
+            OutputStream os = t.getResponseBody();
+            os.write(response.getBytes());
+            os.close();
+        }
+    }
 
-        // // Producto producto = new Producto(7, 
-        // // "Producto1xxx", "Descripcion 1xxx", "Nombre 1xxx");
-        // Producto producto = catalogoRepository.getById(1);
-        // if(producto == null) {
-        //     System.out.println("No existe el producto con id 1");
-        // } else {
-        //     System.out.println("Producto encontrado: " + producto);
-        // }
+    // convierte en un mapa los parámetros de la url
+    public static Map<String, String> getRequestParams(HttpExchange exchange) {
+        String query = exchange.getRequestURI().getQuery();
+        if (query == null || query.isEmpty())
+            return Collections.emptyMap();
 
-        // Producto producto2 = catalogoRepository.getById(7);
-        // if(producto2 == null) {
-        //     System.out.println("No existe el producto con id 7");
-        // } else {
-        //     System.out.println("Producto encontrado: " + producto2);
-        // }
-
-        // List<Producto> productos = catalogoRepository.find("%");
-        // System.out.println("Lista de productos: ");
-        // for(Producto p : productos) {
-        //     System.out.println(p);
-        // }
-
-        //catalogoRepository.store(producto);
-
+        return Stream.of(query.split("&"))
+                .filter(s -> !s.isEmpty())
+                .map(kv -> kv.split("=", 2))
+                .collect(Collectors.toMap(x -> x[0], x -> x[1]));
     }
 }
