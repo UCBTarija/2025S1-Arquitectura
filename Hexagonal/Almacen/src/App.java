@@ -10,6 +10,10 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
+import catalogo.application.InsertarProductoUseCase;
+import catalogo.domain.CatalogoRepositoryPort;
+import catalogo.infrastructure.CatalogoRepositoryPgImpl;
+
 public class App {
     public static void main(String[] args) throws Exception {
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
@@ -24,14 +28,26 @@ public class App {
         @Override
         public void handle(HttpExchange t) throws IOException {
             Map<String, String> params = getRequestParams(t);
-            System.out.println("Params: " + params);
 
-            String response = "{\"message\": \"Hello, World!\"}";
+            String clase = params.get("clase");
+            String codigo = params.get("codigo");
+            String nombre = params.get("nombre");
+
+            CatalogoRepositoryPort catalogoRepository = new CatalogoRepositoryPgImpl(); // Implementar CatalogoRepository
+            InsertarProductoUseCase useCase = new InsertarProductoUseCase(catalogoRepository);
+            int id = useCase.execute(clase, codigo, nombre);
+
+            StringBuilder response = new StringBuilder();
+            response.append("{");
+            response.append("\"status\":\"ok\"");
+            response.append(",");
+            response.append("\"id\":").append(id);
+            response.append("}");
 
             t.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
             t.sendResponseHeaders(200, response.length());
             OutputStream os = t.getResponseBody();
-            os.write(response.getBytes());
+            os.write(response.toString().getBytes());
             os.close();
         }
     }
